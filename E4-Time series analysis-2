@@ -1,0 +1,11 @@
+import pandas as pd
+df =pd.read_csv('https://raw.githubusercontent.com/codebasics/py/refs/heads/master/pandas/15_ts_date_range/aapl_no_dates.csv')
+df.head()
+
+rng = pd.date_range(start='6/1/2017', end='6/30/2017', freq='B')
+rng
+
+df.set_index(rng,inplace=True)
+df
+
+df.Close.plot()
