@@ -1,0 +1,91 @@
+from sklearn.feature_extraction.text import TfidfVectorizer
+corpus = [
+"Thor eating pizza, Loki is eating pizza, Ironman ate pizza already",
+"Apple is announcing new iphone tomorrow",
+"Tesla is announcing new model-3 tomorrow",
+"Google is announcing new pixel-6 tomorrow",
+"Microsoft is announcing new surface tomorrow",
+"Amazon is announcing new eco-dot tomorrow",
+"I am eating biryani and you are eating grapes"
+]
+v = TfidfVectorizer()
+v.fit(corpus)
+
+transform_output = v.transform(corpus)
+print(v.vocabulary_)
+
+all_feature_names = v.get_feature_names_out()
+for word in all_feature_names:
+ indx = v.vocabulary_.get(word)
+ idf_score = v.idf_[indx]
+ print(f"{word} : {idf_score}")
+
+print(transform_output.toarray())
+
+import pandas as pd
+
+df = pd.read_csv("https://raw.githubusercontent.com/codebasics/nlp-tutorials/refs/heads/main/12_tf_idf/Ecommerce_data.csv")
+
+print(df.shape)
+df.head(5)
+
+df['label_num'] = df['label'].map({
+'Household' : 0,
+'Books': 1,
+'Electronics': 2,
+'Clothing & Accessories': 3
+})
+df.head(5)
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+df.Text,
+df.label_num,
+test_size=0.2,
+random_state=2022,
+stratify=df.label_num
+)
+print("Shape of X_train: ", X_train.shape)
+print("Shape of X_test: ", X_test.shape)
+
+X_train.head()
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report
+clf = Pipeline(
+[
+
+('vectorizer_tfidf', TfidfVectorizer()),
+('KNN', KNeighborsClassifier(n_neighbors=5))
+],
+memory='pipeline_cache'
+)
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+from sklearn.naive_bayes import MultinomialNB
+clf = Pipeline(
+[
+('vectorizer_tfidf', TfidfVectorizer()),
+('Multi NB', MultinomialNB())
+],
+memory='pipeline_cache'
+)
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+from sklearn.ensemble import RandomForestClassifier
+clf = Pipeline([
+('vectorizer_tfidf', TfidfVectorizer()),
+('Random Forest', RandomForestClassifier(
+min_samples_leaf=1,
+max_features='sqrt',
+random_state=2022
+))
+], memory='pipeline_cache')
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+print(classification_report(y_test, y_pred))
