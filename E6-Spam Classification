@@ -38,7 +38,7 @@ X_test_np
 
 from sklearn.metrics import classification_report
 model.predict(X_test_cv)
-y_pred
+y_pred = model.predict(X_test_cv)
 
 print(classification_report(y_test, y_pred))
 
